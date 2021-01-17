@@ -4,6 +4,7 @@ const { Video } = require("../models/Video");
 const { auth } = require("../middleware/auth");
 const multer = require("multer");
 const ffmpeg = require("fluent-ffmpeg");
+const { Subscriber } = require("../models/Subscriber");
 // ffmpeg.setFfmpegPath(
 //     "C:Users\brb11\ffmpeg-4.3.1-2021-01-01-full_build\ffmpeg-4.3.1-2021-01-01-full_build\bin\\ffmpeg.exe"
 // );
@@ -52,10 +53,7 @@ router.post("/getVideoDetail", (req, res) => {
         .exec((err, videoDetail) => {
             // console.log(videoDetail);
             if (err) return res.status(400).send(err);
-            return res.status(200).json({
-                success: true,
-                videoDetail,
-            });
+            res.status(200).json({ success: true, videoDetail });
         });
 });
 
@@ -65,7 +63,7 @@ router.get("/getVideos", (req, res) => {
     Video.find()
         .populate("writer")
         .exec((err, videos) => {
-            console.log(videos);
+            // console.log(videos);
             if (err) return res.status(400).send(err);
             res.status(200).json({ success: true, videos });
         });
@@ -122,6 +120,28 @@ router.post("/uploadVideo", (req, res) => {
     video.save((err, doc) => {
         if (err) return res.json({ success: false, err });
         res.status(200).json({ success: true });
+    });
+});
+
+router.post("/getSubscriptionVideos", (req, res) => {
+    // 자신의 아이디를 가지고 구독한 사람들을 찾는다.
+    Subscriber.find({ userFrom: req.body.userFrom }).exec((err, subscriberInfo) => {
+        if (err) return res.status(400).send(err);
+        let subscribedUser = [];
+        subscriberInfo.map((subscriber, i) => {
+            subscribedUser.push(subscriber.userTo);
+        });
+        // 찾은 사람들의 비디오를 가지고 온다.
+        // 몽고디비에서 $in 메서드 사용은 여러 사람들의 값을 찾아줌.
+        Video.find({ writer: { $in: subscribedUser } }) // 구독한 사람들의 아이디를 가져옴
+            .populate("writer") // 아이디 정보로 writer의 모든 정보를 가져옴
+            .exec((err, videos) => {
+                if (err) return res.status(400).send(err);
+                res.status(200).json({
+                    success: true,
+                    videos,
+                });
+            });
     });
 });
 

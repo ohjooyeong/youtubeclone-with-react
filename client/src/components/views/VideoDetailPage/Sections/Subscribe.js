@@ -2,8 +2,8 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 function Subscribe(props) {
-    const [SubscribeNumber, setSubscribeNumber] = useState("");
-    const [Subscribed, setSubscribed] = useState("");
+    const [SubscribeNumber, setSubscribeNumber] = useState(0);
+    const [Subscribed, setSubscribed] = useState(false);
 
     useEffect(() => {
         let variable = { userTo: props.userTo };
@@ -24,6 +24,32 @@ function Subscribe(props) {
         });
     }, []);
 
+    const onSubscribe = () => {
+        let subscribeVariable = {
+            userTo: props.userTo,
+            userFrom: props.userFrom,
+        };
+        if (Subscribed) {
+            axios.post("/api/subscribe/unSubscribe", subscribeVariable).then((response) => {
+                if (response.data.success) {
+                    setSubscribeNumber(SubscribeNumber - 1);
+                    setSubscribed(!Subscribed);
+                } else {
+                    alert("구독 취소 하는 것을 실패했습니다.");
+                }
+            });
+        } else {
+            axios.post("/api/subscribe/subscribe", subscribeVariable).then((response) => {
+                if (response.data.success) {
+                    setSubscribeNumber(SubscribeNumber + 1);
+                    setSubscribed(!Subscribed);
+                } else {
+                    alert("구독하는 것을 실패했습니다.");
+                }
+            });
+        }
+    };
+
     return (
         <div>
             <button
@@ -35,7 +61,7 @@ function Subscribe(props) {
                     fontWeight: "500",
                     fontSize: "1rem",
                 }}
-                onClick
+                onClick={onSubscribe}
             >
                 {SubscribeNumber} {Subscribed ? "구독중" : "구독"}
             </button>

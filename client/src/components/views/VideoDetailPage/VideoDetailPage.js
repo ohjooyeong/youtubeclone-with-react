@@ -19,30 +19,42 @@ function VideoDetailPage(props) {
             }
         });
     }, []);
-    return (
-        <Row>
-            <Col lg={18} xs={24}>
-                <div style={{ width: "100%", padding: "3rem 4rem" }}>
-                    <video
-                        style={{ width: "100%" }}
-                        src={`http://localhost:5000/${VideoDetail.filePath}`}
-                        controls
-                    />
-                    <List.Item actions={[<Subscribe userTo={VideoDetail.writer._id} />]}>
-                        <List.Item.Meta
-                            avatar={<Avatar src={VideoDetail.writer && VideoDetail.writer.image} />}
-                            title={VideoDetail.title}
-                            description={VideoDetail.description}
+    if (VideoDetail.writer) {
+        return (
+            <Row>
+                <Col lg={18} xs={24}>
+                    <div style={{ width: "100%", padding: "3rem 4rem" }}>
+                        <video
+                            style={{ width: "100%" }}
+                            src={`http://localhost:5000/${VideoDetail.filePath}`}
                         />
-                    </List.Item>
-                    {/* Comment */}
-                </div>
-            </Col>
-            <Col lg={6} xs={24}>
-                <SideVideo />
-            </Col>
-        </Row>
-    );
+                        <List.Item
+                            actions={[
+                                <Subscribe
+                                    userTo={VideoDetail.writer._id}
+                                    userFrom={localStorage.getItem("userId")}
+                                />,
+                            ]}
+                        >
+                            <List.Item.Meta
+                                avatar={
+                                    <Avatar src={VideoDetail.writer && VideoDetail.writer.image} />
+                                }
+                                title={VideoDetail.title}
+                                description={VideoDetail.description}
+                            />
+                        </List.Item>
+                        {/* Comment */}
+                    </div>
+                </Col>
+                <Col lg={6} xs={24}>
+                    <SideVideo />
+                </Col>
+            </Row>
+        );
+    } else {
+        return <div>Loading</div>;
+    }
 }
 
 export default VideoDetailPage;
