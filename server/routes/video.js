@@ -134,7 +134,7 @@ router.post("/getSubscriptionVideos", (req, res) => {
         // 찾은 사람들의 비디오를 가지고 온다.
         // 몽고디비에서 $in 메서드 사용은 여러 사람들의 값을 찾아줌.
         Video.find({ writer: { $in: subscribedUser } }) // 구독한 사람들의 아이디를 가져옴
-            .populate("writer") // 아이디 정보로 writer의 모든 정보를 가져옴
+            .populate("writer") // 아이디 정보로 writer의 모든 정보를 가져옴 // ObjectId를 실제 객체로 치환
             .exec((err, videos) => {
                 if (err) return res.status(400).send(err);
                 res.status(200).json({
